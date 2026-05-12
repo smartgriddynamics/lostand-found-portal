@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FindIt AI - Smart Lost & Found Recovery</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23111827'/><text x='16' y='22' text-anchor='middle' fill='%2362D2FF' font-size='18'>🔍</text></svg>">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111827;
+      --bg-card: #1a1f2e;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #62d2ff;
+      --accent2: #4f46e5;
+      --accent3: #10b981;
+      --border: #1e293b;
+      --danger: #ef4444;
+      --gold: #f59e0b;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.3);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 1rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+      background: transparent;
+      border-bottom: 1px solid transparent;
+    }
+
+    .navbar.scrolled {
+      background: rgba(10, 10, 10, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-dot {
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(98, 210, 255, 0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(98, 210, 255, 0); }
+    }
+
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      letter-spacing: 0.3px;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0a;
+    }
+    .btn-primary:hover {
+      background: #7dd8ff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(98, 210, 255, 0.3);
+    }
+
+    .btn-outline {
+      border: 2px solid var(--border);
+      color: var(--text-primary);
+      background: transparent;
+    }
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 8px 16px;
+    }
+    .btn-ghost:hover { color: var(--text-primary); background: var(--bg-card); }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 5% 80px;
+      background: var(--bg-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(98,210,255,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-content {
+      flex: 1;
+      max-width: 650px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(98, 210, 255, 0.1);
+      border: 1px solid rgba(98, 210, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 2rem;
+    }
+
+    .badge-dot {
+      width: 8px; height: 8px;
+      background: var(--accent3);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .hero-content h1 {
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-content h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-content p {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 500px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .hero-visual {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Sections */
+    section {
+      padding: 100px 5%;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-tag {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* How it works */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem 2rem;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .step-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .step-number {
+      font-size: 4rem;
+      font-weight: 900;
+      color: rgba(98, 210, 255, 0.1);
+      position: absolute;
+      top: 20px;
+      right: 30px;
+    }
+
+    .step-icon {
+      width: 56px; height: 56px;
+      background: rgba(98, 210, 255, 0.1);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-icon i { font-size: 1.5rem; color: var(--accent); }
+    .step-card h3 { font-size: 1.3rem; margin-bottom: 0.8rem; font-weight: 700; }
+    .step-card p { color: var(--text-secondary); font-size: 0.95rem; }
+
+    /* Pricing */
+    #pricing { background: var(--bg-secondary); }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(98,210,255,0.05) 0%, var(--bg-card) 100%);
+      transform: scale(1.03);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #0a0a0a;
+      padding: 6px 20px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .pricing-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-price {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin: 1rem 0;
+    }
+
+    .pricing-price span {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin: 2rem 0;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .pricing-features li i { color: var(--accent3); font-size: 0.8rem; }
+
+    .pricing-card .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Testimonials */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      transition: var(--transition);
+    }
+
+    .testimonial-card:hover {
+      border-color: rgba(98,210,255,0.3);
+    }
+
+    .testimonial-stars {
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    .testimonial-text {
+      color: var(--text-secondary);
+      font-style: italic;
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .testimonial-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--accent2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+    }
+
+    .testimonial-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .testimonial-role {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    /* Search section */
+    #search-section {
+      background: var(--bg-secondary);
+      border-radius: 40px 40px 0 0;
+      margin-top: -40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .search-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 60px;
+      padding: 8px;
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 14px 20px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .search-box input::placeholder { color: var(--text-secondary); }
+
+    .search-box button {
+      padding: 14px 28px;
+      background: var(--accent);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .search-box button:hover { background: #7dd8ff; }
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .filter-bar select,
+    .filter-bar input {
+      padding: 10px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .item-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .item-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .item-image {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      background: var(--bg-secondary);
+    }
+
+    .item-body {
+      padding: 1.5rem;
+    }
+
+    .item-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .status-lost { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .status-found { background: rgba(16,185,129,0.15); color: #10b981; }
+    .status-matched { background: rgba(98,210,255,0.15); color: #62d2ff; }
+    .status-returned { background: rgba(245,158,11,0.15); color: #f59e0b; }
+
+    .item-body h3 { font-size: 1.1rem; margin: 8px 0; }
+    .item-body p { color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0; }
+
+    .ai-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(98,210,255,0.1);
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-top: 10px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      max-width: 800px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover { background: var(--danger); color: white; }
+
+    /* Footer */
+    .footer {
+      background: var(--bg-secondary);
+      padding: 60px 5% 30px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto 3rem;
+    }
+
+    .footer-section h4 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .footer-section ul { list-style: none; }
+    .footer-section ul li { margin-bottom: 8px; }
+
+    .footer-section ul li a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .footer-section ul li a:hover { color: var(--accent); }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 3000;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-sm);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast.show { display: flex; }
+    .toast.success { border-left: 3px solid var(--accent3); }
+    .toast.error { border-left: 3px solid var(--danger); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .hero-content h1 { font-size: 2.5rem; }
+      .section-title { font-size: 2rem; }
+      .hero { flex-direction: column; text-align: center; }
+      .hero-stats { justify-content: center; }
+      .nav-links { display: none; }
+      .pricing-card.featured { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast -->
+  <div id="toast" class="toast"><i class="fas"></i><span id="toastMsg"></span></div>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <a href="#" class="logo">
+      <div class="logo-dot"></div> FindIt AI
+    </a>
+    <div class="nav-links">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#search-section">Search</a>
+      <a href="user.html" class="btn btn-ghost">Sign In</a>
+      <a href="user.html" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content" data-aos="fade-up">
+      <div class="badge">
+        <div class="badge-dot"></div> AI-Powered Image Recognition
+      </div>
+      <h1>Lost Something?<br><span>AI Finds It.</span></h1>
+      <p>Our intelligent image recognition instantly matches lost items with found ones. Simple, fast, and surprisingly accurate.</p>
+      <div class="hero-actions">
+        <a href="user.html" class="btn btn-primary"><i class="fas fa-search"></i> Report Lost Item</a>
+        <a href="user.html" class="btn btn-outline"><i class="fas fa-hand-holding-heart"></i> I Found Something</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-value" id="heroTotal">0</div><div class="stat-label">Items in System</div></div>
+        <div><div class="stat-value" id="heroMatched">0</div><div class="stat-label">AI Matches</div></div>
+        <div><div class="stat-value" id="heroRecovered">0</div><div class="stat-label">Recovered</div></div>
+      </div>
+    </div>
+    <div class="hero-visual" data-aos="fade-left">
+      <svg width="350" height="350" viewBox="0 0 350 350">
+        <defs>
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#62d2ff;stop-opacity:0.3"/>
+            <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:0.2"/>
+          </linearGradient>
+        </defs>
+        <circle cx="175" cy="175" r="140" fill="url(#g1)"/>
+        <circle cx="175" cy="175" r="80" fill="none" stroke="rgba(98,210,255,0.15)" stroke-width="2"/>
+        <text x="175" y="160" text-anchor="middle" fill="#62d2ff" font-size="60">🔍</text>
+        <text x="175" y="240" text-anchor="middle" fill="#94a3b8" font-size="14" font-family="Inter">AI Matching Engine</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-tag">Process</div>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle">Three simple steps to recover your belongings</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="step-number">01</div>
+        <div class="step-icon"><i class="fas fa-camera-retro"></i></div>
+        <h3>Upload Photo</h3>
+        <p>Snap a clear image of your item. Our system accepts all common formats and optimizes for AI analysis.</p>
+      </div>
+      <div class="step-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="step-number">02</div>
+        <div class="step-icon"><i class="fas fa-brain"></i></div>
+        <h3>AI Analysis</h3>
+        <p>Our algorithm extracts visual features—colors, shapes, textures—and compares across the database in milliseconds.</p>
+      </div>
+      <div class="step-card" data-aos="fade-up" data-aos-delay="300">
+        <div class="step-number">03</div>
+        <div class="step-icon"><i class="fas fa-bell"></i></div>
+        <h3>Get Matched</h3>
+        <p>Receive instant notifications when a potential match is found. Connect with the finder and recover your item.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-tag">Pricing</div>
+      <h2 class="section-title">Choose Your Plan</h2>
+      <p class="section-subtitle">Free for basic use. Premium for power users.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card" data-aos="fade-up" data-aos-delay="100">
+        <h3 class="pricing-name">Free</h3>
+        <p style="color: var(--text-secondary);">For occasional users</p>
+        <div class="pricing-price">$0<span>/month</span></div>
+        <ul class="pricing-features">
+          <li><i class="fas fa-check"></i> 3 reports per month</li>
+          <li><i class="fas fa-check"></i> Basic AI matching</li>
+          <li><i class="fas fa-check"></i> Email notifications</li>
+          <li><i class="fas fa-check"></i> 30-day listing</li>
+        </ul>
+        <a href="user.html" class="btn btn-outline">Get Started Free</a>
+      </div>
+      <div class="pricing-card featured" data-aos="fade-up" data-aos-delay="200">
+        <div class="pricing-badge">Most Popular</div>
+        <h3 class="pricing-name" style="margin-top: 10px;">Pro</h3>
+        <p style="color: var(--text-secondary);">For active users</p>
+        <div class="pricing-price">$9<span>/month</span></div>
+        <ul class="pricing-features">
+          <li><i class="fas fa-check"></i> Unlimited reports</li>
+          <li><i class="fas fa-check"></i> Advanced AI matching</li>
+          <li><i class="fas fa-check"></i> Priority notifications</li>
+          <li><i class="fas fa-check"></i> 90-day listing</li>
+          <li><i class="fas fa-check"></i> Image enhancement</li>
+        </ul>
+        <a href="user.html" class="btn btn-primary">Start Pro</a>
+      </div>
+      <div class="pricing-card" data-aos="fade-up" data-aos-delay="300">
+        <h3 class="pricing-name">Institution</h3>
+        <p style="color: var(--text-secondary);">For schools & offices</p>
+        <div class="pricing-price">$29<span>/month</span></div>
+        <ul class="pricing-features">
+          <li><i class="fas fa-check"></i> Everything in Pro</li>
+          <li><i class="fas fa-check"></i> Multi-admin dashboard</li>
+          <li><i class="fas fa-check"></i> API access</li>
+          <li><i class="fas fa-check"></i> Custom branding</li>
+          <li><i class="fas fa-check"></i> Priority support</li>
+        </ul>
+        <a href="user.html" class="btn btn-outline">Contact Sales</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-tag">Testimonials</div>
+      <h2 class="section-title">What People Say</h2>
+      <p class="section-subtitle">Real stories from our community</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"I lost my wallet at the airport. Within 2 hours of reporting, the AI matched it with a found item. Incredible technology!"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">S</div>
+          <div><div class="testimonial-name">Sarah M.</div><div class="testimonial-role">Dar es Salaam</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Our university implemented this system. Lost & found recovery rate improved by 70%. The AI matching is surprisingly accurate."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">J</div>
+          <div><div class="testimonial-name">James K.</div><div class="testimonial-role">University Admin</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card" data-aos="fade-up" data-aos-delay="300">
+        <div class="testimonial-stars">★★★★☆</div>
+        <p class="testimonial-text">"Found someone's laptop. Posted it here and the AI automatically notified the owner. They were so grateful. Highly recommend!"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">A</div>
+          <div><div class="testimonial-name">Amina H.</div><div class="testimonial-role">Arusha</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search Section -->
+  <section id="search-section">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-tag">Browse</div>
+      <h2 class="section-title">Search Items</h2>
+    </div>
+    <div class="search-container">
+      <div class="search-box" data-aos="fade-up">
+        <input type="text" id="searchInput" placeholder="Search by name, category, location...">
+        <button onclick="searchItems()"><i class="fas fa-search"></i> Search</button>
+      </div>
+      <div class="filter-bar" data-aos="fade-up">
+        <select id="catFilter" onchange="searchItems()">
+          <option value="">All Categories</option>
+          <option value="electronics">Electronics</option>
+          <option value="clothing">Clothing</option>
+          <option value="documents">Documents</option>
+          <option value="jewelry">Jewelry</option>
+          <option value="keys">Keys</option>
+          <option value="bags">Bags</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="statusFilter" onchange="searchItems()">
+          <option value="">All Status</option>
+          <option value="lost">Lost</option>
+          <option value="found">Found</option>
+          <option value="matched">Matched</option>
+          <option value="returned">Returned</option>
+        </select>
+        <input type="date" id="dateFilter" onchange="searchItems()">
+      </div>
+      <div class="items-grid" id="itemsGrid"></div>
+    </div>
+  </section>
+
+  <!-- Match Modal -->
+  <div class="modal-overlay" id="matchModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div id="matchContent"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-section">
+        <h4>FindIt AI</h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">Smart lost & found recovery powered by artificial intelligence.</p>
+      </div>
+      <div class="footer-section">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#testimonials">Reviews</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="user.html">Report Item</a></li>
+          <li><a href="admin.html">Admin Panel</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 FindIt AI. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC9WrnjHyTAgB0NZ6psL02S9qMn87LEKQg",
+      authDomain: "finditai-2514e.firebaseapp.com",
+      projectId: "finditai-2514e",
+      storageBucket: "finditai-2514e.firebasestorage.app",
+      messagingSenderId: "811813057487",
+      appId: "1:811813057487:web:2493893af27b0533b4d8ba",
+      measurementId: "G-XT861F9C1P"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Initialize AOS
+    AOS.init({ duration: 800, once: true, offset: 80 });
+
+    // Navbar scroll
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Toast
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.className = `toast ${type} show`;
+      t.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+      document.getElementById('toastMsg').textContent = msg;
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    // Local storage fallback
+    if (!localStorage.getItem('lfItems')) localStorage.setItem('lfItems', JSON.stringify([]));
+
+    // Load items from Firebase + localStorage
+    async function loadItems(filtered = null) {
+      let items = [];
+      
+      // Try Firebase first
+      try {
+        const q = query(collection(db, "items"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+        snap.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
+      } catch (e) {
+        console.log('Loading from local storage');
+        items = JSON.parse(localStorage.getItem('lfItems')) || [];
+      }
+
+      if (filtered) items = filtered;
+      
+      const grid = document.getElementById('itemsGrid');
+      if (items.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-secondary);">
+          <i class="fas fa-box-open" style="font-size:3rem;margin-bottom:1rem;display:block;"></i>
+          No items found. <a href="user.html" style="color:var(--accent);">Report one</a>
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = items.map(item => `
+        <div class="item-card" onclick="viewMatch('${item.id}')">
+          <img src="${item.image || 'https://placehold.co/400x250/1a1f2e/94a3b8?text=No+Image'}" 
+               class="item-image" alt="${item.name}"
+               onerror="this.src='https://placehold.co/400x250/1a1f2e/94a3b8?text=No+Image'">
+          <div class="item-body">
+            <span class="item-status status-${item.status || 'lost'}">${(item.status || 'lost').toUpperCase()}</span>
+            <h3>${item.name}</h3>
+            <p><i class="fas fa-map-pin"></i> ${item.location}</p>
+            <p><i class="fas fa-calendar-alt"></i> ${item.date}</p>
+            ${item.aiMatch ? `<div class="ai-tag"><i class="fas fa-robot"></i> ${item.aiMatch}% Match</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      // Update stats
+      const all = JSON.parse(localStorage.getItem('lfItems')) || [];
+      document.getElementById('heroTotal').textContent = all.length;
+      document.getElementById('heroMatched').textContent = all.filter(i => i.aiMatch).length;
+      document.getElementById('heroRecovered').textContent = all.filter(i => i.status === 'returned').length;
+    }
+
+    function searchItems() {
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      const cat = document.getElementById('catFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const date = document.getElementById('dateFilter').value;
+      
+      let items = JSON.parse(localStorage.getItem('lfItems')) || [];
+      if (term) items = items.filter(i => i.name.toLowerCase().includes(term) || i.description?.toLowerCase().includes(term) || i.location?.toLowerCase().includes(term));
+      if (cat) items = items.filter(i => i.category === cat);
+      if (status) items = items.filter(i => i.status === status);
+      if (date) items = items.filter(i => i.date === date);
+      
+      loadItems(items);
+    }
+
+    // AI matching
+    function viewMatch(itemId) {
+      const items = JSON.parse(localStorage.getItem('lfItems')) || [];
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      const matches = items.filter(i => i.id !== itemId && i.status !== item.status)
+        .map(i => {
+          let score = 0;
+          if (i.category === item.category) score += 30;
+          const common = item.description?.toLowerCase().split(/\W+/).filter(w => i.description?.toLowerCase().includes(w) && w.length > 3) || [];
+          score += (common.length / Math.max(item.description?.split(/\W+/).length || 1, 1)) * 25;
+          if (i.location?.toLowerCase() === item.location?.toLowerCase()) score += 20;
+          const days = Math.abs(new Date(i.date) - new Date(item.date)) / 86400000;
+          if (days <= 7) score += 15;
+          else if (days <= 30) score += 8;
+          score += (i.image && item.image ? 10 : 0);
+          return { ...i, score: Math.min(100, Math.round(score)) };
+        })
+        .filter(i => i.score > 25)
+        .sort((a, b) => b.score - a.score);
+
+      const best = matches[0];
+      document.getElementById('matchContent').innerHTML = `
+        <h3 style="margin-bottom:1rem;">AI Match Analysis</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+          <div style="text-align:center;">
+            <p style="color:var(--text-secondary);margin-bottom:10px;">Your Item</p>
+            <img src="${item.image || 'https://placehold.co/300x200'}" style="width:100%;border-radius:12px;margin-bottom:10px;">
+            <strong>${item.name}</strong>
+            <p style="color:var(--text-secondary);font-size:0.9rem;">${item.description}</p>
+          </div>
+          <div style="text-align:center;">
+            <p style="color:var(--text-secondary);margin-bottom:10px;">Best Match</p>
+            ${best ? `
+              <img src="${best.image || 'https://placehold.co/300x200'}" style="width:100%;border-radius:12px;margin-bottom:10px;">
+              <strong>${best.name}</strong>
+              <p style="color:var(--text-secondary);font-size:0.9rem;">${best.description}</p>
+              <div style="font-size:2rem;font-weight:800;color:var(--accent);margin:10px 0;">${best.score}%</div>
+              <div style="background:var(--bg-secondary);height:8px;border-radius:10px;overflow:hidden;">
+                <div style="height:100%;width:${best.score}%;background:linear-gradient(90deg,var(--accent3),var(--accent));border-radius:10px;"></div>
+              </div>
+            ` : '<p style="color:var(--text-secondary);">No significant match found</p>'}
+          </div>
+        </div>
+      `;
+      document.getElementById('matchModal').classList.add('active');
+    }
+
+    window.closeModal = () => document.getElementById('matchModal').classList.remove('active');
+    document.getElementById('matchModal').addEventListener('click', e => {
+      if (e.target.id === 'matchModal') closeModal();
+    });
+
+    // Export for inline onclick
+    window.viewMatch = viewMatch;
+    window.searchItems = searchItems;
+
+    // Initial load
+    loadItems();
+    console.log('FindIt AI - Firebase connected');
+  </script>
+</body>
+</html>
