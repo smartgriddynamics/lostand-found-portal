@@ -39,7 +39,6 @@
       overflow-x: hidden;
     }
 
-    /* Navbar */
     .navbar {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -105,7 +104,6 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      letter-spacing: 0.3px;
     }
 
     .btn-primary {
@@ -127,13 +125,6 @@
       border-color: var(--accent);
       color: var(--accent);
     }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-secondary);
-      padding: 8px 16px;
-    }
-    .btn-ghost:hover { color: var(--text-primary); background: var(--bg-card); }
 
     /* Hero */
     .hero {
@@ -270,7 +261,7 @@
       margin: 0 auto;
     }
 
-    /* How it works */
+    /* Steps */
     .steps-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -441,16 +432,7 @@
       color: white;
     }
 
-    .testimonial-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-    .testimonial-role {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-    }
-
-    /* Search section */
+    /* Search */
     #search-section {
       background: var(--bg-secondary);
       border-radius: 40px 40px 0 0;
@@ -483,8 +465,6 @@
       font-size: 1rem;
       outline: none;
     }
-
-    .search-box input::placeholder { color: var(--text-secondary); }
 
     .search-box button {
       padding: 14px 28px;
@@ -663,30 +643,6 @@
       font-size: 0.85rem;
     }
 
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 3000;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius-sm);
-      display: none;
-      align-items: center;
-      gap: 10px;
-      animation: slideIn 0.3s ease;
-    }
-
-    .toast.show { display: flex; }
-    .toast.success { border-left: 3px solid var(--accent3); }
-    .toast.error { border-left: 3px solid var(--danger); }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
     @media (max-width: 768px) {
       .hero-content h1 { font-size: 2.5rem; }
       .section-title { font-size: 2rem; }
@@ -698,10 +654,6 @@
   </style>
 </head>
 <body>
-  <!-- Toast -->
-  <div id="toast" class="toast"><i class="fas"></i><span id="toastMsg"></span></div>
-
-  <!-- Navbar -->
   <nav class="navbar" id="navbar">
     <a href="#" class="logo">
       <div class="logo-dot"></div> FindIt AI
@@ -711,12 +663,11 @@
       <a href="#pricing">Pricing</a>
       <a href="#testimonials">Reviews</a>
       <a href="#search-section">Search</a>
-      <a href="user.html" class="btn btn-ghost">Sign In</a>
-      <a href="user.html" class="btn btn-primary">Get Started</a>
+      <a href="auth.html" class="btn btn-outline">Sign In</a>
+      <a href="auth.html#register" class="btn btn-primary">Get Started</a>
     </div>
   </nav>
 
-  <!-- Hero -->
   <section class="hero">
     <div class="hero-content" data-aos="fade-up">
       <div class="badge">
@@ -725,8 +676,8 @@
       <h1>Lost Something?<br><span>AI Finds It.</span></h1>
       <p>Our intelligent image recognition instantly matches lost items with found ones. Simple, fast, and surprisingly accurate.</p>
       <div class="hero-actions">
-        <a href="user.html" class="btn btn-primary"><i class="fas fa-search"></i> Report Lost Item</a>
-        <a href="user.html" class="btn btn-outline"><i class="fas fa-hand-holding-heart"></i> I Found Something</a>
+        <a href="auth.html" class="btn btn-primary"><i class="fas fa-search"></i> Report Lost Item</a>
+        <a href="auth.html" class="btn btn-outline"><i class="fas fa-hand-holding-heart"></i> I Found Something</a>
       </div>
       <div class="hero-stats">
         <div><div class="stat-value" id="heroTotal">0</div><div class="stat-label">Items in System</div></div>
@@ -743,14 +694,12 @@
           </linearGradient>
         </defs>
         <circle cx="175" cy="175" r="140" fill="url(#g1)"/>
-        <circle cx="175" cy="175" r="80" fill="none" stroke="rgba(98,210,255,0.15)" stroke-width="2"/>
         <text x="175" y="160" text-anchor="middle" fill="#62d2ff" font-size="60">🔍</text>
-        <text x="175" y="240" text-anchor="middle" fill="#94a3b8" font-size="14" font-family="Inter">AI Matching Engine</text>
+        <text x="175" y="240" text-anchor="middle" fill="#94a3b8" font-size="14">AI Matching Engine</text>
       </svg>
     </div>
   </section>
 
-  <!-- How It Works -->
   <section id="how-it-works">
     <div class="section-header" data-aos="fade-up">
       <div class="section-tag">Process</div>
@@ -762,24 +711,23 @@
         <div class="step-number">01</div>
         <div class="step-icon"><i class="fas fa-camera-retro"></i></div>
         <h3>Upload Photo</h3>
-        <p>Snap a clear image of your item. Our system accepts all common formats and optimizes for AI analysis.</p>
+        <p>Snap a clear image. Our system accepts all common formats.</p>
       </div>
       <div class="step-card" data-aos="fade-up" data-aos-delay="200">
         <div class="step-number">02</div>
         <div class="step-icon"><i class="fas fa-brain"></i></div>
         <h3>AI Analysis</h3>
-        <p>Our algorithm extracts visual features—colors, shapes, textures—and compares across the database in milliseconds.</p>
+        <p>Our algorithm extracts visual features and compares across the database.</p>
       </div>
       <div class="step-card" data-aos="fade-up" data-aos-delay="300">
         <div class="step-number">03</div>
         <div class="step-icon"><i class="fas fa-bell"></i></div>
         <h3>Get Matched</h3>
-        <p>Receive instant notifications when a potential match is found. Connect with the finder and recover your item.</p>
+        <p>Receive instant notifications when a potential match is found.</p>
       </div>
     </div>
   </section>
 
-  <!-- Pricing -->
   <section id="pricing">
     <div class="section-header" data-aos="fade-up">
       <div class="section-tag">Pricing</div>
@@ -789,7 +737,7 @@
     <div class="pricing-grid">
       <div class="pricing-card" data-aos="fade-up" data-aos-delay="100">
         <h3 class="pricing-name">Free</h3>
-        <p style="color: var(--text-secondary);">For occasional users</p>
+        <p style="color:var(--text-secondary);">For occasional users</p>
         <div class="pricing-price">$0<span>/month</span></div>
         <ul class="pricing-features">
           <li><i class="fas fa-check"></i> 3 reports per month</li>
@@ -797,12 +745,12 @@
           <li><i class="fas fa-check"></i> Email notifications</li>
           <li><i class="fas fa-check"></i> 30-day listing</li>
         </ul>
-        <a href="user.html" class="btn btn-outline">Get Started Free</a>
+        <a href="auth.html" class="btn btn-outline">Get Started Free</a>
       </div>
       <div class="pricing-card featured" data-aos="fade-up" data-aos-delay="200">
         <div class="pricing-badge">Most Popular</div>
-        <h3 class="pricing-name" style="margin-top: 10px;">Pro</h3>
-        <p style="color: var(--text-secondary);">For active users</p>
+        <h3 class="pricing-name" style="margin-top:10px;">Pro</h3>
+        <p style="color:var(--text-secondary);">For active users</p>
         <div class="pricing-price">$9<span>/month</span></div>
         <ul class="pricing-features">
           <li><i class="fas fa-check"></i> Unlimited reports</li>
@@ -811,11 +759,11 @@
           <li><i class="fas fa-check"></i> 90-day listing</li>
           <li><i class="fas fa-check"></i> Image enhancement</li>
         </ul>
-        <a href="user.html" class="btn btn-primary">Start Pro</a>
+        <a href="auth.html" class="btn btn-primary">Start Pro</a>
       </div>
       <div class="pricing-card" data-aos="fade-up" data-aos-delay="300">
         <h3 class="pricing-name">Institution</h3>
-        <p style="color: var(--text-secondary);">For schools & offices</p>
+        <p style="color:var(--text-secondary);">For schools & offices</p>
         <div class="pricing-price">$29<span>/month</span></div>
         <ul class="pricing-features">
           <li><i class="fas fa-check"></i> Everything in Pro</li>
@@ -824,12 +772,11 @@
           <li><i class="fas fa-check"></i> Custom branding</li>
           <li><i class="fas fa-check"></i> Priority support</li>
         </ul>
-        <a href="user.html" class="btn btn-outline">Contact Sales</a>
+        <a href="auth.html" class="btn btn-outline">Contact Sales</a>
       </div>
     </div>
   </section>
 
-  <!-- Testimonials -->
   <section id="testimonials">
     <div class="section-header" data-aos="fade-up">
       <div class="section-tag">Testimonials</div>
@@ -839,32 +786,31 @@
     <div class="testimonials-grid">
       <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
         <div class="testimonial-stars">★★★★★</div>
-        <p class="testimonial-text">"I lost my wallet at the airport. Within 2 hours of reporting, the AI matched it with a found item. Incredible technology!"</p>
+        <p class="testimonial-text">"I lost my wallet at the airport. Within 2 hours, the AI matched it. Incredible!"</p>
         <div class="testimonial-author">
           <div class="testimonial-avatar">S</div>
-          <div><div class="testimonial-name">Sarah M.</div><div class="testimonial-role">Dar es Salaam</div></div>
+          <div><div class="testimonial-name" style="font-weight:600;">Sarah M.</div><div class="testimonial-role" style="font-size:0.8rem;color:var(--text-secondary);">Dar es Salaam</div></div>
         </div>
       </div>
       <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
         <div class="testimonial-stars">★★★★★</div>
-        <p class="testimonial-text">"Our university implemented this system. Lost & found recovery rate improved by 70%. The AI matching is surprisingly accurate."</p>
+        <p class="testimonial-text">"Our university implemented this. Recovery rate improved by 70%. The AI is surprisingly accurate."</p>
         <div class="testimonial-author">
           <div class="testimonial-avatar">J</div>
-          <div><div class="testimonial-name">James K.</div><div class="testimonial-role">University Admin</div></div>
+          <div><div class="testimonial-name" style="font-weight:600;">James K.</div><div class="testimonial-role" style="font-size:0.8rem;color:var(--text-secondary);">University Admin</div></div>
         </div>
       </div>
       <div class="testimonial-card" data-aos="fade-up" data-aos-delay="300">
         <div class="testimonial-stars">★★★★☆</div>
-        <p class="testimonial-text">"Found someone's laptop. Posted it here and the AI automatically notified the owner. They were so grateful. Highly recommend!"</p>
+        <p class="testimonial-text">"Found a laptop, posted it here and the AI notified the owner. They were so grateful!"</p>
         <div class="testimonial-author">
           <div class="testimonial-avatar">A</div>
-          <div><div class="testimonial-name">Amina H.</div><div class="testimonial-role">Arusha</div></div>
+          <div><div class="testimonial-name" style="font-weight:600;">Amina H.</div><div class="testimonial-role" style="font-size:0.8rem;color:var(--text-secondary);">Arusha</div></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Search Section -->
   <section id="search-section">
     <div class="section-header" data-aos="fade-up">
       <div class="section-tag">Browse</div>
@@ -899,7 +845,6 @@
     </div>
   </section>
 
-  <!-- Match Modal -->
   <div class="modal-overlay" id="matchModal">
     <div class="modal">
       <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -907,12 +852,11 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-section">
         <h4>FindIt AI</h4>
-        <p style="color: var(--text-secondary); font-size: 0.9rem;">Smart lost & found recovery powered by artificial intelligence.</p>
+        <p style="color:var(--text-secondary);font-size:0.9rem;">Smart lost & found recovery powered by AI.</p>
       </div>
       <div class="footer-section">
         <h4>Product</h4>
@@ -923,11 +867,11 @@
         </ul>
       </div>
       <div class="footer-section">
-        <h4>Support</h4>
+        <h4>Account</h4>
         <ul>
-          <li><a href="user.html">Report Item</a></li>
-          <li><a href="admin.html">Admin Panel</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="auth.html">Sign In</a></li>
+          <li><a href="auth.html#register">Register</a></li>
+          <li><a href="admin.html">Admin</a></li>
         </ul>
       </div>
     </div>
@@ -937,71 +881,28 @@
   </footer>
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC9WrnjHyTAgB0NZ6psL02S9qMn87LEKQg",
-      authDomain: "finditai-2514e.firebaseapp.com",
-      projectId: "finditai-2514e",
-      storageBucket: "finditai-2514e.firebasestorage.app",
-      messagingSenderId: "811813057487",
-      appId: "1:811813057487:web:2493893af27b0533b4d8ba",
-      measurementId: "G-XT861F9C1P"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Initialize AOS
+  <script>
     AOS.init({ duration: 800, once: true, offset: 80 });
 
-    // Navbar scroll
     window.addEventListener('scroll', () => {
       document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
     });
 
-    // Toast
-    function showToast(msg, type = 'success') {
-      const t = document.getElementById('toast');
-      t.className = `toast ${type} show`;
-      t.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-      document.getElementById('toastMsg').textContent = msg;
-      setTimeout(() => t.classList.remove('show'), 4000);
-    }
-
-    // Local storage fallback
     if (!localStorage.getItem('lfItems')) localStorage.setItem('lfItems', JSON.stringify([]));
 
-    // Load items from Firebase + localStorage
-    async function loadItems(filtered = null) {
-      let items = [];
-      
-      // Try Firebase first
-      try {
-        const q = query(collection(db, "items"), orderBy("createdAt", "desc"));
-        const snap = await getDocs(q);
-        snap.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
-      } catch (e) {
-        console.log('Loading from local storage');
-        items = JSON.parse(localStorage.getItem('lfItems')) || [];
-      }
-
-      if (filtered) items = filtered;
-      
+    function loadItems(filtered = null) {
+      let items = filtered || JSON.parse(localStorage.getItem('lfItems')) || [];
       const grid = document.getElementById('itemsGrid');
+      
       if (items.length === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-secondary);">
           <i class="fas fa-box-open" style="font-size:3rem;margin-bottom:1rem;display:block;"></i>
-          No items found. <a href="user.html" style="color:var(--accent);">Report one</a>
+          No items found. <a href="auth.html" style="color:var(--accent);">Sign in to report one</a>
         </div>`;
         return;
       }
 
-      grid.innerHTML = items.map(item => `
+      grid.innerHTML = items.slice(0, 6).map(item => `
         <div class="item-card" onclick="viewMatch('${item.id}')">
           <img src="${item.image || 'https://placehold.co/400x250/1a1f2e/94a3b8?text=No+Image'}" 
                class="item-image" alt="${item.name}"
@@ -1016,7 +917,6 @@
         </div>
       `).join('');
 
-      // Update stats
       const all = JSON.parse(localStorage.getItem('lfItems')) || [];
       document.getElementById('heroTotal').textContent = all.length;
       document.getElementById('heroMatched').textContent = all.filter(i => i.aiMatch).length;
@@ -1024,13 +924,13 @@
     }
 
     function searchItems() {
+      let items = JSON.parse(localStorage.getItem('lfItems')) || [];
       const term = document.getElementById('searchInput').value.toLowerCase();
       const cat = document.getElementById('catFilter').value;
       const status = document.getElementById('statusFilter').value;
       const date = document.getElementById('dateFilter').value;
       
-      let items = JSON.parse(localStorage.getItem('lfItems')) || [];
-      if (term) items = items.filter(i => i.name.toLowerCase().includes(term) || i.description?.toLowerCase().includes(term) || i.location?.toLowerCase().includes(term));
+      if (term) items = items.filter(i => i.name.toLowerCase().includes(term) || i.description?.toLowerCase().includes(term));
       if (cat) items = items.filter(i => i.category === cat);
       if (status) items = items.filter(i => i.status === status);
       if (date) items = items.filter(i => i.date === date);
@@ -1038,7 +938,6 @@
       loadItems(items);
     }
 
-    // AI matching
     function viewMatch(itemId) {
       const items = JSON.parse(localStorage.getItem('lfItems')) || [];
       const item = items.find(i => i.id === itemId);
@@ -1052,9 +951,8 @@
           score += (common.length / Math.max(item.description?.split(/\W+/).length || 1, 1)) * 25;
           if (i.location?.toLowerCase() === item.location?.toLowerCase()) score += 20;
           const days = Math.abs(new Date(i.date) - new Date(item.date)) / 86400000;
-          if (days <= 7) score += 15;
-          else if (days <= 30) score += 8;
-          score += (i.image && item.image ? 10 : 0);
+          if (days <= 7) score += 15; else if (days <= 30) score += 8;
+          if (i.image && item.image) score += 10;
           return { ...i, score: Math.min(100, Math.round(score)) };
         })
         .filter(i => i.score > 25)
@@ -1065,40 +963,29 @@
         <h3 style="margin-bottom:1rem;">AI Match Analysis</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
           <div style="text-align:center;">
-            <p style="color:var(--text-secondary);margin-bottom:10px;">Your Item</p>
-            <img src="${item.image || 'https://placehold.co/300x200'}" style="width:100%;border-radius:12px;margin-bottom:10px;">
+            <p style="color:var(--text-secondary);">Your Item</p>
+            <img src="${item.image || 'https://placehold.co/300x200'}" style="width:100%;border-radius:12px;margin:10px 0;">
             <strong>${item.name}</strong>
-            <p style="color:var(--text-secondary);font-size:0.9rem;">${item.description}</p>
           </div>
           <div style="text-align:center;">
-            <p style="color:var(--text-secondary);margin-bottom:10px;">Best Match</p>
+            <p style="color:var(--text-secondary);">Best Match</p>
             ${best ? `
-              <img src="${best.image || 'https://placehold.co/300x200'}" style="width:100%;border-radius:12px;margin-bottom:10px;">
+              <img src="${best.image || 'https://placehold.co/300x200'}" style="width:100%;border-radius:12px;margin:10px 0;">
               <strong>${best.name}</strong>
-              <p style="color:var(--text-secondary);font-size:0.9rem;">${best.description}</p>
               <div style="font-size:2rem;font-weight:800;color:var(--accent);margin:10px 0;">${best.score}%</div>
-              <div style="background:var(--bg-secondary);height:8px;border-radius:10px;overflow:hidden;">
-                <div style="height:100%;width:${best.score}%;background:linear-gradient(90deg,var(--accent3),var(--accent));border-radius:10px;"></div>
-              </div>
-            ` : '<p style="color:var(--text-secondary);">No significant match found</p>'}
+            ` : '<p style="color:var(--text-secondary);">No match found</p>'}
           </div>
         </div>
       `;
       document.getElementById('matchModal').classList.add('active');
     }
 
-    window.closeModal = () => document.getElementById('matchModal').classList.remove('active');
-    document.getElementById('matchModal').addEventListener('click', e => {
-      if (e.target.id === 'matchModal') closeModal();
-    });
-
-    // Export for inline onclick
     window.viewMatch = viewMatch;
     window.searchItems = searchItems;
+    window.closeModal = () => document.getElementById('matchModal').classList.remove('active');
+    document.getElementById('matchModal').addEventListener('click', e => { if (e.target.id === 'matchModal') closeModal(); });
 
-    // Initial load
     loadItems();
-    console.log('FindIt AI - Firebase connected');
   </script>
 </body>
 </html>

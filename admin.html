@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FindIt AI - Admin Panel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111827;
+      --bg-card: #1a1f2e;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #62d2ff;
+      --accent2: #4f46e5;
+      --accent3: #10b981;
+      --border: #1e293b;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.3);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* Admin Login Overlay */
+    .admin-login-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: var(--transition);
+    }
+
+    .admin-login-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .admin-login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .admin-login-card .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      font-weight: 800;
+      font-size: 1.3rem;
+    }
+
+    .logo-dot {
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(98, 210, 255, 0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(98, 210, 255, 0); }
+    }
+
+    .admin-icon {
+      width: 60px; height: 60px;
+      background: rgba(139, 92, 246, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .admin-icon i { font-size: 1.8rem; color: var(--purple); }
+
+    .form-group { margin-bottom: 1.2rem; text-align: left; }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-group input:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(139,92,246,0.1);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn-primary { background: var(--purple); color: white; }
+    .btn-primary:hover { background: #7c3aed; transform: translateY(-1px); }
+    .btn-outline { border: 2px solid var(--border); color: var(--text-primary); background: transparent; }
+    .btn-outline:hover { border-color: var(--purple); color: var(--purple); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-sm { padding: 6px 14px; font-size: 0.8rem; width: auto; }
+    .btn-xs { padding: 4px 10px; font-size: 0.7rem; width: auto; }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .error-msg.show { display: block; }
+
+    /* Admin Dashboard Layout */
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      min-height: 100vh;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar-nav { flex: 1; }
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      margin-bottom: 4px;
+      transition: var(--transition);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--purple);
+    }
+
+    .sidebar-nav a i { width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+
+    .admin-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(139, 92, 246, 0.1);
+      border-radius: var(--radius-sm);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .admin-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: 2rem 3rem;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 { font-size: 1.8rem; font-weight: 800; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .stat-icon.blue { background: rgba(98,210,255,0.15); color: var(--accent); }
+    .stat-icon.green { background: rgba(16,185,129,0.15); color: var(--accent3); }
+    .stat-icon.red { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .stat-icon.purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+
+    .stat-card h3 { font-size: 2rem; font-weight: 800; margin-bottom: 4px; }
+    .stat-card p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .card-header h3 { font-size: 1.1rem; font-weight: 700; }
+
+    .search-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 10px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .search-bar input:focus { border-color: var(--purple); }
+
+    .table-wrapper { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    th {
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tr:hover td { background: rgba(139,92,246,0.02); }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .status-lost { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .status-found { background: rgba(16,185,129,0.15); color: #10b981; }
+    .status-matched { background: rgba(98,210,255,0.15); color: #62d2ff; }
+    .status-returned { background: rgba(245,158,11,0.15); color: #f59e0b; }
+
+    .thumbnail {
+      width: 50px; height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
+      background: var(--bg-secondary);
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      text-align: center;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover { background: var(--danger); color: white; }
+
+    .modal img { width: 100%; border-radius: 12px; }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 3000;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-sm);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast.show { display: flex; }
+    .toast.success { border-left: 3px solid var(--accent3); }
+    .toast.error { border-left: 3px solid var(--danger); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    section { display: none; }
+    section.active { display: block; }
+
+    .chart-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 150px;
+      padding-top: 1rem;
+    }
+
+    .bar {
+      flex: 1;
+      background: var(--purple);
+      border-radius: 6px 6px 0 0;
+      transition: var(--transition);
+      min-width: 30px;
+      position: relative;
+    }
+
+    .bar:hover { opacity: 0.8; }
+    .bar-label {
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--purple);
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar { width: 200px; }
+      .main-content { margin-left: 200px; padding: 1.5rem; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Admin Login Overlay -->
+  <div class="admin-login-overlay" id="adminLoginOverlay">
+    <div class="admin-login-card">
+      <div class="admin-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <div class="logo">
+        <div class="logo-dot"></div> Admin Access
+      </div>
+      <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem;">
+        Enter admin credentials to continue
+      </p>
+      <form onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label>Admin Email</label>
+          <input type="email" id="adminEmail" required placeholder="admin@findit.ai">
+        </div>
+        <div class="form-group">
+          <label>Admin Password</label>
+          <input type="password" id="adminPassword" required placeholder="••••••••">
+        </div>
+        <div class="error-msg" id="adminError">Invalid admin credentials</div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-lock-open"></i> Access Admin Panel
+        </button>
+      </form>
+      <button class="btn btn-outline" style="margin-top:0.8rem;" onclick="window.location.href='index.html'">
+        <i class="fas fa-arrow-left"></i> Back to Site
+      </button>
+      <p style="color:var(--text-secondary);font-size:0.75rem;margin-top:1rem;">
+        Default: admin@findit.ai / admin123
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"><i class="fas"></i><span id="toastMsg"></span></div>
+
+  <!-- Admin Dashboard (Hidden until login) -->
+  <div class="admin-layout" id="adminDashboard" style="display:none;">
+    <aside class="sidebar">
+      <a href="index.html" class="sidebar-logo">
+        <div class="logo-dot"></div> FindIt AI
+      </a>
+      <nav class="sidebar-nav">
+        <a class="active" onclick="switchSection('overview')"><i class="fas fa-th-large"></i> Overview</a>
+        <a onclick="switchSection('items')"><i class="fas fa-boxes"></i> All Items</a>
+        <a onclick="switchSection('matches')"><i class="fas fa-robot"></i> AI Matches</a>
+        <a onclick="switchSection('users')"><i class="fas fa-users"></i> Users</a>
+        <a onclick="switchSection('settings')"><i class="fas fa-cog"></i> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-badge">
+          <div class="admin-avatar">A</div>
+          <div>
+            <div style="font-weight:600;">Admin</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);">Super Admin</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="width:100%;" onclick="handleAdminLogout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <!-- Overview -->
+      <section class="active" id="section-overview">
+        <div class="page-header">
+          <h1>Admin Dashboard</h1>
+          <button class="btn btn-primary btn-sm" onclick="refreshAll()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-box"></i></div><h3 id="totalItems">0</h3><p>Total Items</p></div>
+          <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><h3 id="foundItems">0</h3><p>Found</p></div>
+          <div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-circle"></i></div><h3 id="lostItems">0</h3><p>Lost</p></div>
+          <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-robot"></i></div><h3 id="matchedItems">0</h3><p>AI Matched</p></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Items by Category</h3></div>
+          <div class="chart-bar" id="categoryChart"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Recent Items</h3></div>
+          <div class="table-wrapper">
+            <table><thead><tr><th>Image</th><th>Name</th><th>Status</th><th>Category</th><th>Date</th></tr></thead>
+            <tbody id="recentTable"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Items -->
+      <section id="section-items">
+        <div class="page-header"><h1>All Items</h1></div>
+        <div class="card">
+          <div class="search-bar">
+            <input type="text" id="adminSearch" placeholder="Search..." oninput="filterItems()">
+            <select id="adminStatusFilter" onchange="filterItems()" style="padding:10px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:50px;color:var(--text-primary);outline:none;">
+              <option value="">All</option>
+              <option value="lost">Lost</option>
+              <option value="found">Found</option>
+              <option value="matched">Matched</option>
+              <option value="returned">Returned</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table><thead><tr><th>Image</th><th>Name</th><th>Status</th><th>Category</th><th>User</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="allItemsTable"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Matches -->
+      <section id="section-matches">
+        <div class="page-header"><h1>AI Matches</h1></div>
+        <div class="card">
+          <div class="table-wrapper">
+            <table><thead><tr><th>Item 1</th><th>Item 2</th><th>Match %</th><th>Actions</th></tr></thead>
+            <tbody id="matchesTable"></tbody></table>
+          </div>
+          <div id="noMatches" style="text-align:center;padding:2rem;color:var(--text-secondary);display:none;">
+            <i class="fas fa-robot" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>No AI matches yet
+          </div>
+        </div>
+      </section>
+
+      <!-- Users -->
+      <section id="section-users">
+        <div class="page-header"><h1>Users</h1></div>
+        <div class="card">
+          <div class="table-wrapper">
+            <table><thead><tr><th>User</th><th>Email</th><th>Items</th><th>Last Active</th></tr></thead>
+            <tbody id="usersTable"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section id="section-settings">
+        <div class="page-header"><h1>Settings</h1></div>
+        <div class="card">
+          <h3>System Config</h3>
+          <div style="margin:1rem 0;"><label style="color:var(--text-secondary);">AI Threshold (%)</label>
+          <input type="number" id="matchThreshold" value="25" style="width:100%;padding:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);margin-top:5px;"></div>
+          <button class="btn btn-primary btn-sm" onclick="saveSettings()"><i class="fas fa-save"></i> Save</button>
+        </div>
+        <div class="card" style="margin-top:1rem;">
+          <h3 style="color:var(--danger);">Danger Zone</h3>
+          <button class="btn btn-danger btn-sm" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear All Data</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Image Modal -->
+  <div class="modal-overlay" id="imageModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeImageModal()">&times;</button>
+      <img id="modalImage" src="">
+    </div>
+  </div>
+
+  <script>
+    // Admin credentials (in production, use Firebase Auth with custom claims)
+    const ADMIN_CREDENTIALS = {
+      email: 'admin@findit.ai',
+      password: 'admin123'
+    };
+
+    if (!localStorage.getItem('lfItems')) {
+      localStorage.setItem('lfItems', JSON.stringify([]));
+    }
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.className = `toast ${type} show`;
+      t.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+      document.getElementById('toastMsg').textContent = msg;
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    function getItems() {
+      return JSON.parse(localStorage.getItem('lfItems')) || [];
+    }
+
+    function saveItems(items) {
+      localStorage.setItem('lfItems', JSON.stringify(items));
+    }
+
+    // Admin Login
+    window.handleAdminLogin = (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value.trim();
+      const errorEl = document.getElementById('adminError');
+
+      if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+        sessionStorage.setItem('adminLoggedIn', 'true');
+        document.getElementById('adminLoginOverlay').classList.add('hidden');
+        document.getElementById('adminDashboard').style.display = 'flex';
+        showToast('Welcome, Admin!');
+        loadOverview();
+      } else {
+        errorEl.classList.add('show');
+        setTimeout(() => errorEl.classList.remove('show'), 3000);
+      }
+    };
+
+    window.handleAdminLogout = () => {
+      sessionStorage.removeItem('adminLoggedIn');
+      document.getElementById('adminLoginOverlay').classList.remove('hidden');
+      document.getElementById('adminDashboard').style.display = 'none';
+    };
+
+    // Check if already logged in
+    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+      document.getElementById('adminLoginOverlay').classList.add('hidden');
+      document.getElementById('adminDashboard').style.display = 'flex';
+      loadOverview();
+    }
+
+    // Section switching
+    window.switchSection = (name) => {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+      
+      const section = document.getElementById(`section-${name}`);
+      if (section) section.classList.add('active');
+      
+      const link = document.querySelector(`.sidebar-nav a[onclick="switchSection('${name}')"]`);
+      if (link) link.classList.add('active');
+
+      if (name === 'overview') loadOverview();
+      if (name === 'items') loadAllItems();
+      if (name === 'matches') loadMatches();
+      if (name === 'users') loadUsers();
+    };
+
+    function loadOverview() {
+      const items = getItems();
+      document.getElementById('totalItems').textContent = items.length;
+      document.getElementById('foundItems').textContent = items.filter(i => i.status === 'found').length;
+      document.getElementById('lostItems').textContent = items.filter(i => i.status === 'lost').length;
+      document.getElementById('matchedItems').textContent = items.filter(i => i.aiMatch).length;
+
+      // Category chart
+      const cats = {};
+      items.forEach(i => { cats[i.category] = (cats[i.category] || 0) + 1; });
+      const maxVal = Math.max(...Object.values(cats), 1);
+      document.getElementById('categoryChart').innerHTML = Object.entries(cats).map(([cat, count]) => `
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+          <div class="bar" style="height:${(count/maxVal)*120}px;"><span class="bar-value">${count}</span></div>
+          <span class="bar-label">${cat}</span>
+        </div>
+      `).join('');
+
+      // Recent table
+      const recent = [...items].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+      document.getElementById('recentTable').innerHTML = recent.map(i => `
+        <tr>
+          <td><img src="${i.image || ''}" class="thumbnail" onclick="viewImage('${i.image}')" onerror="this.style.display='none'"></td>
+          <td>${i.name}</td>
+          <td><span class="status-badge status-${i.status}">${i.status}</span></td>
+          <td>${i.category}</td>
+          <td>${i.date}</td>
+        </tr>
+      `).join('');
+    }
+
+    function loadAllItems(filtered = null) {
+      const items = filtered || getItems();
+      document.getElementById('allItemsTable').innerHTML = items.map(i => `
+        <tr>
+          <td><img src="${i.image || ''}" class="thumbnail" onclick="viewImage('${i.image}')" onerror="this.style.display='none'"></td>
+          <td><strong>${i.name}</strong></td>
+          <td>
+            <select onchange="changeStatus('${i.id}', this.value)" style="padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:0.8rem;">
+              <option value="lost" ${i.status==='lost'?'selected':''}>Lost</option>
+              <option value="found" ${i.status==='found'?'selected':''}>Found</option>
+              <option value="matched" ${i.status==='matched'?'selected':''}>Matched</option>
+              <option value="returned" ${i.status==='returned'?'selected':''}>Returned</option>
+            </select>
+          </td>
+          <td>${i.category}</td>
+          <td>${i.userEmail || 'N/A'}</td>
+          <td>${i.date}</td>
+          <td><button class="btn btn-xs btn-danger" onclick="deleteItem('${i.id}')"><i class="fas fa-trash"></i></button></td>
+        </tr>
+      `).join('');
+    }
+
+    window.filterItems = () => {
+      const term = document.getElementById('adminSearch').value.toLowerCase();
+      const status = document.getElementById('adminStatusFilter').value;
+      let items = getItems();
+      if (term) items = items.filter(i => i.name.toLowerCase().includes(term));
+      if (status) items = items.filter(i => i.status === status);
+      loadAllItems(items);
+    };
+
+    window.changeStatus = (id, newStatus) => {
+      const items = getItems();
+      const idx = items.findIndex(i => i.id === id);
+      if (idx > -1) { items[idx].status = newStatus; saveItems(items); showToast('Status updated'); loadAllItems(); }
+    };
+
+    window.deleteItem = (id) => {
+      if (confirm('Delete this item?')) {
+        saveItems(getItems().filter(i => i.id !== id));
+        showToast('Deleted');
+        loadAllItems();
+      }
+    };
+
+    function loadMatches() {
+      const items = getItems();
+      const matched = items.filter(i => i.aiMatch && i.matchedWith);
+      const table = document.getElementById('matchesTable');
+      const noMatch = document.getElementById('noMatches');
+      
+      if (matched.length === 0) {
+        table.innerHTML = '';
+        noMatch.style.display = 'block';
+      } else {
+        noMatch.style.display = 'none';
+        table.innerHTML = matched.map(i => {
+          const other = items.find(o => o.id === i.matchedWith);
+          return other ? `
+            <tr>
+              <td>${i.name} <span class="status-badge status-${i.status}">${i.status}</span></td>
+              <td>${other.name} <span class="status-badge status-${other.status}">${other.status}</span></td>
+              <td><strong style="color:var(--purple);">${i.aiMatch}%</strong></td>
+              <td><button class="btn btn-xs btn-primary" onclick="resolveMatch('${i.id}','${other.id}')">Resolve</button></td>
+            </tr>
+          ` : '';
+        }).join('');
+      }
+    }
+
+    window.resolveMatch = (id1, id2) => {
+      const items = getItems();
+      [id1, id2].forEach(id => {
+        const idx = items.findIndex(i => i.id === id);
+        if (idx > -1) items[idx].status = 'returned';
+      });
+      saveItems(items);
+      showToast('Both marked as returned');
+      loadMatches();
+    };
+
+    function loadUsers() {
+      const items = getItems();
+      const users = {};
+      items.forEach(i => {
+        const key = i.userId || 'anonymous';
+        if (!users[key]) users[key] = { email: i.userEmail, name: i.userName, count: 0, last: i.createdAt };
+        users[key].count++;
+        if (new Date(i.createdAt) > new Date(users[key].last)) users[key].last = i.createdAt;
+      });
+      
+      document.getElementById('usersTable').innerHTML = Object.values(users).map(u => `
+        <tr>
+          <td><strong>${u.name || 'Anonymous'}</strong></td>
+          <td>${u.email || 'N/A'}</td>
+          <td>${u.count}</td>
+          <td>${new Date(u.last).toLocaleDateString()}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" style="text-align:center;">No users</td></tr>';
+    }
+
+    window.viewImage = (src) => {
+      if (!src) return;
+      document.getElementById('modalImage').src = src;
+      document.getElementById('imageModal').classList.add('active');
+    };
+
+    window.closeImageModal = () => document.getElementById('imageModal').classList.remove('active');
+    document.getElementById('imageModal').addEventListener('click', e => { if (e.target.id === 'imageModal') closeImageModal(); });
+
+    window.saveSettings = () => {
+      localStorage.setItem('adminSettings', JSON.stringify({ threshold: document.getElementById('matchThreshold').value }));
+      showToast('Settings saved');
+    };
+
+    window.clearAllData = () => {
+      if (confirm('Delete ALL data? This cannot be undone!') && confirm('Final confirmation?')) {
+        localStorage.setItem('lfItems', JSON.stringify([]));
+        showToast('All data cleared');
+        loadOverview();
+      }
+    };
+
+    window.refreshAll = () => { loadOverview(); showToast('Refreshed'); };
+
+    // Load saved settings
+    const settings = JSON.parse(localStorage.getItem('adminSettings') || '{}');
+    if (settings.threshold) document.getElementById('matchThreshold').value = settings.threshold;
+  </script>
+</body>
+</html>
